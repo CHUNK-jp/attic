@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Attic — Search Your Digital Life, Locally</title>
-  <meta name="description" content="ローカルLLMで動く自然言語ファイル検索ツール。クラウドなし・サブスクなし。" />
+  <title>Attic — Search Your Digital Life, Locally.</title>
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
       --bg: #0d0d0d;
       --bg2: #141414;
@@ -13,335 +14,385 @@
       --border: #2a2a2a;
       --text: #e8e8e8;
       --muted: #888;
-      --accent: #7c6aff;
-      --accent2: #a08fff;
+      --accent: #7c6af7;
+      --accent2: #5eead4;
       --green: #4ade80;
-      --red: #f87171;
-      --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --yellow: #facc15;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
 
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: var(--font-sans);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       line-height: 1.6;
       min-height: 100vh;
     }
 
-    /* ── NAV ── */
+    a { color: inherit; text-decoration: none; }
+
+    /* ─── NAV ─── */
     nav {
-      padding: 1.2rem 2rem;
-      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      padding: 0 2rem;
+      height: 56px;
+      background: rgba(13,13,13,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
     }
+
     .nav-logo {
-      font-family: var(--font-mono);
-      font-size: 0.9rem;
-      color: var(--muted);
-      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
     }
-    .nav-logo span { color: var(--text); }
-    .nav-links { display: flex; gap: 1.5rem; }
+
+    .nav-logo .org { color: var(--muted); }
+    .nav-logo .sep { color: var(--border); margin: 0 2px; }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
     .nav-links a {
-      color: var(--muted);
-      text-decoration: none;
       font-size: 0.85rem;
-      transition: color 0.2s;
+      color: var(--muted);
+      transition: color 0.15s;
     }
+
     .nav-links a:hover { color: var(--text); }
 
-    /* ── HERO ── */
-    .hero {
-      max-width: 780px;
-      margin: 0 auto;
-      padding: 5rem 2rem 3rem;
-    }
-    .hero-eyebrow {
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      color: var(--accent);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin-bottom: 1.4rem;
-    }
-    .hero h1 {
-      font-size: clamp(2.2rem, 5vw, 3.4rem);
-      font-weight: 700;
-      line-height: 1.15;
-      letter-spacing: -0.02em;
-      margin-bottom: 1.4rem;
-    }
-    .hero h1 em {
-      font-style: normal;
-      color: var(--accent2);
-    }
-    .hero-sub {
-      font-size: 1.05rem;
-      color: var(--muted);
-      max-width: 520px;
-      margin-bottom: 2.4rem;
-    }
-    .badges {
+    .nav-links .btn-gh {
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-bottom: 2.4rem;
-    }
-    .badge {
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      padding: 0.3rem 0.75rem;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--bg3);
       border: 1px solid var(--border);
-      border-radius: 4px;
-      color: var(--muted);
+      padding: 0.35rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      color: var(--text);
+      transition: border-color 0.15s, background 0.15s;
     }
-    .badge.green { border-color: #2d5a3d; color: var(--green); }
-    .badge.purple { border-color: #3d3560; color: var(--accent2); }
 
-    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
-    .btn {
+    .nav-links .btn-gh:hover { border-color: #555; background: #222; }
+
+    /* ─── HERO ─── */
+    .hero {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 5rem 2rem 4rem;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(124,106,247,0.12);
+      border: 1px solid rgba(124,106,247,0.3);
+      border-radius: 999px;
+      padding: 0.3rem 0.9rem;
+      font-size: 0.78rem;
+      color: #a99ff8;
+      margin-bottom: 2rem;
+      letter-spacing: 0.03em;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.2rem;
+    }
+
+    .hero h1 .hl {
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 540px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.65rem 1.4rem;
-      border-radius: 6px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      text-decoration: none;
-      transition: all 0.2s;
-      cursor: pointer;
-      border: none;
-    }
-    .btn-primary {
       background: var(--accent);
       color: #fff;
+      padding: 0.65rem 1.4rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: opacity 0.15s, transform 0.15s;
     }
-    .btn-primary:hover { background: var(--accent2); }
-    .btn-secondary {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-    .btn-secondary:hover { border-color: var(--accent); color: var(--accent2); }
 
-    /* ── TERMINAL DEMO ── */
-    .demo-wrap {
-      max-width: 780px;
-      margin: 0 auto;
-      padding: 0 2rem 4rem;
-    }
-    .terminal {
-      background: #0a0a0a;
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: transparent;
       border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
+      color: var(--text);
+      padding: 0.65rem 1.4rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: border-color 0.15s, background 0.15s;
     }
+
+    .btn-secondary:hover { border-color: #555; background: var(--bg3); }
+
+    /* ─── TERMINAL DEMO ─── */
+    .terminal-wrap {
+      max-width: 700px;
+      margin: 3.5rem auto 0;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+    }
+
     .terminal-bar {
-      background: #1c1c1c;
-      padding: 0.75rem 1rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      background: #1c1c1c;
+      padding: 0.65rem 1rem;
       border-bottom: 1px solid var(--border);
     }
+
     .dot { width: 12px; height: 12px; border-radius: 50%; }
     .dot-r { background: #ff5f57; }
     .dot-y { background: #febc2e; }
     .dot-g { background: #28c840; }
+
     .terminal-title {
-      font-family: var(--font-mono);
+      flex: 1;
+      text-align: center;
       font-size: 0.75rem;
       color: var(--muted);
-      margin-left: 0.5rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
     }
+
     .terminal-body {
+      background: #0f0f0f;
       padding: 1.4rem 1.6rem;
-      font-family: var(--font-mono);
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
       font-size: 0.82rem;
-      line-height: 1.8;
+      line-height: 1.75;
+      text-align: left;
     }
+
     .t-prompt { color: var(--accent); }
     .t-cmd { color: var(--text); }
-    .t-comment { color: #555; }
-    .t-out { color: #aaa; }
-    .t-score-high { color: var(--green); }
-    .t-score-mid { color: #facc15; }
-    .t-file { color: var(--accent2); }
-    .t-table {
-      margin: 0.5rem 0;
-      border-collapse: collapse;
-      width: 100%;
-    }
-    .t-table td {
-      padding: 0.15rem 0.8rem 0.15rem 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .t-divider {
-      border: none;
-      border-top: 1px solid #222;
-      margin: 1rem 0;
+    .t-dim { color: #555; }
+    .t-result-header { color: var(--yellow); text-align: center; margin: 0.3rem 0; }
+    .t-file { color: #93c5fd; }
+    .t-match { color: var(--green); }
+    .t-path { color: #555; }
+    .t-blank { height: 0.5rem; display: block; }
+
+    /* ─── SECTION COMMON ─── */
+    section { padding: 5rem 2rem; }
+
+    .section-inner { max-width: 900px; margin: 0 auto; }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
     }
 
-    /* ── FEATURES ── */
-    .section {
-      max-width: 780px;
-      margin: 0 auto;
-      padding: 3rem 2rem;
-      border-top: 1px solid var(--border);
+    .section-title {
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.6rem;
     }
-    .section-label {
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      color: var(--accent);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin-bottom: 1.8rem;
+
+    .section-sub {
+      color: var(--muted);
+      font-size: 1rem;
+      margin-bottom: 3rem;
     }
-    .features {
+
+    /* ─── FEATURES ─── */
+    .features-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 1.2rem;
     }
-    .feature {
+
+    .feature-card {
       background: var(--bg2);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1.4rem;
-    }
-    .feature-icon {
-      font-size: 1.4rem;
-      margin-bottom: 0.8rem;
-    }
-    .feature h3 {
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin-bottom: 0.4rem;
-    }
-    .feature p {
-      font-size: 0.85rem;
-      color: var(--muted);
-      line-height: 1.6;
+      border-radius: 10px;
+      padding: 1.5rem;
+      transition: border-color 0.2s, transform 0.2s;
     }
 
-    /* ── HOW IT WORKS ── */
+    .feature-card:hover { border-color: #444; transform: translateY(-2px); }
+
+    .feature-icon { font-size: 1.6rem; margin-bottom: 0.8rem; }
+
+    .feature-card h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; }
+
+    .feature-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+    /* ─── HOW IT WORKS ─── */
+    #how { background: var(--bg2); }
+
     .pipeline {
       display: flex;
       align-items: center;
-      gap: 0;
       flex-wrap: wrap;
-      margin-top: 1.5rem;
+      gap: 0;
+      margin-bottom: 1.5rem;
+      justify-content: center;
     }
+
     .pipe-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      text-align: center;
+    }
+
+    .pipe-box {
       background: var(--bg3);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: 8px;
       padding: 0.6rem 1rem;
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-      color: var(--text);
+      font-size: 0.8rem;
+      font-weight: 500;
       white-space: nowrap;
     }
+
+    .pipe-label { font-size: 0.7rem; color: var(--muted); }
+
     .pipe-arrow {
-      color: var(--accent);
-      font-size: 1rem;
+      color: var(--border);
+      font-size: 1.2rem;
       padding: 0 0.4rem;
-    }
-    .pipeline-note {
-      margin-top: 1.2rem;
-      font-size: 0.85rem;
-      color: var(--muted);
-      line-height: 1.7;
-    }
-    .pipeline-note code {
-      font-family: var(--font-mono);
-      background: var(--bg3);
-      padding: 0.15rem 0.4rem;
-      border-radius: 3px;
-      font-size: 0.8rem;
-      color: var(--accent2);
+      padding-bottom: 1.2rem;
     }
 
-    /* ── QUICK START ── */
-    .steps { display: flex; flex-direction: column; gap: 1.2rem; margin-top: 1.5rem; }
-    .step { display: flex; gap: 1.2rem; }
-    .step-num {
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      color: var(--accent);
-      padding-top: 0.15rem;
-      min-width: 1.8rem;
+    .pipe-highlight .pipe-box { border-color: var(--accent); color: #a99ff8; }
+
+    .how-detail {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
     }
-    .step-body h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.4rem; }
-    .step-body p { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.5rem; }
+
+    .how-item { border-left: 2px solid var(--accent); padding-left: 1rem; }
+    .how-item h4 { font-size: 0.88rem; font-weight: 600; margin-bottom: 0.3rem; }
+    .how-item p { font-size: 0.8rem; color: var(--muted); }
+
+    /* ─── QUICK START ─── */
+    .steps { display: flex; flex-direction: column; gap: 1rem; }
+
+    .step { display: flex; gap: 1.2rem; align-items: flex-start; }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      background: rgba(124,106,247,0.15);
+      border: 1px solid rgba(124,106,247,0.4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-top: 2px;
+    }
+
+    .step-body h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.3rem; }
+    .step-body p { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.5rem; }
+
     .code-block {
-      background: #0a0a0a;
+      background: var(--bg3);
       border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 0.8rem 1rem;
-      font-family: var(--font-mono);
+      padding: 0.6rem 0.9rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
       font-size: 0.8rem;
-      color: #ccc;
+      color: var(--accent2);
       overflow-x: auto;
-      line-height: 1.7;
     }
-    .code-block .c-accent { color: var(--accent2); }
-    .code-block .c-muted { color: #555; }
 
-    /* ── FILE TYPES ── */
-    .filetypes {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 1.2rem;
-    }
-    .ft {
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-      padding: 0.3rem 0.65rem;
+    /* ─── FILE TYPES ─── */
+    .filetypes { background: var(--bg2); }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+
+    .tag {
       background: var(--bg3);
       border: 1px solid var(--border);
-      border-radius: 4px;
-      color: var(--accent2);
+      border-radius: 6px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.78rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      color: var(--muted);
+      transition: border-color 0.15s, color 0.15s;
     }
 
-    /* ── CTA ── */
-    .cta-section {
-      max-width: 780px;
-      margin: 0 auto;
-      padding: 3rem 2rem 5rem;
-      border-top: 1px solid var(--border);
-      text-align: center;
-    }
-    .cta-section h2 {
-      font-size: 1.8rem;
-      font-weight: 700;
-      margin-bottom: 0.8rem;
-      letter-spacing: -0.02em;
-    }
-    .cta-section p { color: var(--muted); margin-bottom: 2rem; }
+    .tag:hover { border-color: var(--accent); color: #a99ff8; }
 
-    /* ── FOOTER ── */
+    /* ─── FOOTER ─── */
     footer {
       border-top: 1px solid var(--border);
-      padding: 1.5rem 2rem;
+      padding: 2rem;
       text-align: center;
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       color: var(--muted);
     }
-    footer a { color: var(--muted); text-decoration: none; }
-    footer a:hover { color: var(--text); }
 
-    @media (max-width: 600px) {
-      .pipeline { gap: 0.3rem; }
-      .pipe-arrow { padding: 0 0.2rem; }
-      .hero { padding-top: 3rem; }
+    footer a { color: var(--accent); transition: opacity 0.15s; }
+    footer a:hover { opacity: 0.75; }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
     }
   </style>
 </head>
@@ -349,190 +400,204 @@
 
 <!-- NAV -->
 <nav>
-  <a href="https://CHUNK-jp.github.io/" class="nav-logo">
-    <span>CHUNK-jp</span> / attic
+  <a class="nav-logo" href="#">
+    <span class="org">CHUNK-jp</span>
+    <span class="sep">/</span>
+    <span>attic</span>
   </a>
   <div class="nav-links">
-    <a href="https://CHUNK-jp.github.io/">← Tools</a>
-    <a href="https://github.com/CHUNK-jp/attic" target="_blank">GitHub</a>
+    <a href="https://chunk-jp.github.io/" target="_blank" rel="noopener">Tools</a>
+    <a class="btn-gh" href="https://github.com/CHUNK-jp/attic" target="_blank" rel="noopener">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+      GitHub
+    </a>
   </div>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-eyebrow">Open Source · Local · Free</div>
-  <h1>あのファイル、<em>自然言語</em>で<br>すぐ見つかる。</h1>
-  <p class="hero-sub">
-    Attic はローカルLLMを使ったパーソナル検索エンジン。
-    ファイル名を忘れても、内容の記憶だけで検索できる。
-    クラウドなし・サブスクなし・データはすべて手元に。
-  </p>
-  <div class="badges">
-    <span class="badge green">100% Offline</span>
-    <span class="badge green">No Cloud</span>
-    <span class="badge green">No Subscription</span>
-    <span class="badge purple">Powered by Ollama</span>
-    <span class="badge purple">Python 3.10+</span>
-    <span class="badge">MIT License</span>
+  <div class="hero-badge">🔒 100% ローカル &nbsp;·&nbsp; クラウド不使用 &nbsp;·&nbsp; 無料</div>
+  <h1>あのファイル、<br/><span class="hl">自然言語ですぐ見つかる。</span></h1>
+  <p>Attic はあなたのローカルファイルをベクトル検索するプライバシーファーストな個人向け検索エンジンです。インターネット接続不要。サブスクリプション不要。</p>
+  <div class="hero-cta">
+    <a class="btn-primary" href="https://github.com/CHUNK-jp/attic" target="_blank" rel="noopener">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+      GitHub で見る
+    </a>
+    <a class="btn-secondary" href="#quickstart">クイックスタート →</a>
   </div>
-  <div class="hero-actions">
-    <a href="https://github.com/CHUNK-jp/attic" class="btn btn-primary" target="_blank">
-      ⭐ GitHub で見る
-    </a>
-    <a href="#quickstart" class="btn btn-secondary">
-      クイックスタート →
-    </a>
+
+  <!-- Terminal Demo -->
+  <div class="terminal-wrap">
+    <div class="terminal-bar">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+      <span class="terminal-title">attic — zsh</span>
+    </div>
+    <div class="terminal-body">
+      <div><span class="t-prompt">❯ </span><span class="t-cmd">python3 attic.py index ~/Documents</span></div>
+      <div class="t-dim">  🏠 Attic — indexing started</div>
+      <div class="t-dim">  ✓ Ollama connected (model: nomic-embed-text)</div>
+      <div class="t-dim">  Found 312 files in ~/Documents</div>
+      <div class="t-dim">  ✓ Done!  Indexed: 298  Skipped: 12  Errors: 2</div>
+      <span class="t-blank"></span>
+      <div><span class="t-prompt">❯ </span><span class="t-cmd">python3 attic.py search "vector search engine"</span></div>
+      <div class="t-dim">  Searching 847 chunks...</div>
+      <span class="t-blank"></span>
+      <div class="t-result-header">🔍  Results for: "vector search engine"</div>
+      <div>&nbsp;&nbsp;<span class="t-file">vector_search.txt</span>&nbsp;&nbsp;<span class="t-match">A vector search engine stores data as high-dimensional embeddings...</span></div>
+      <div>&nbsp;&nbsp;<span class="t-path">~/Documents/research/</span>&nbsp;&nbsp;<span class="t-match">retrieves results by semantic similarity, not keywords.</span></div>
+      <span class="t-blank"></span>
+      <div>&nbsp;&nbsp;<span class="t-file">chromadb_notes.pdf</span>&nbsp;&nbsp;<span class="t-match">ChromaDB is an open-source vector database ideal for</span></div>
+      <div>&nbsp;&nbsp;<span class="t-path">~/Documents/dev/</span>&nbsp;&nbsp;<span class="t-match">local, privacy-first semantic search applications...</span></div>
+    </div>
   </div>
 </section>
 
-<!-- TERMINAL DEMO -->
-<div class="demo-wrap">
-  <div class="terminal">
-    <div class="terminal-bar">
-      <span class="dot dot-r"></span>
-      <span class="dot dot-y"></span>
-      <span class="dot dot-g"></span>
-      <span class="terminal-title">bash — attic</span>
-    </div>
-    <div class="terminal-body">
-      <div>
-        <span class="t-prompt">$ </span>
-        <span class="t-cmd">python attic.py index ~/Documents</span>
-      </div>
-      <div class="t-out">✓ Ollama connected (model: nomic-embed-text)</div>
-      <div class="t-out">Found <strong>1,247</strong> files in ~/Documents</div>
-      <div class="t-out">✓ Done! Indexed: 1,247  Skipped: 0  Errors: 0</div>
-      <hr class="t-divider" />
-      <div>
-        <span class="t-prompt">$ </span>
-        <span class="t-cmd">python attic.py search "去年の確定申告の資料"</span>
-      </div>
-      <div class="t-out" style="margin-top:0.4rem">Searching 18,432 chunks...</div>
-      <div style="margin-top:0.6rem; overflow-x:auto;">
-        <table class="t-table">
-          <tr>
-            <td><span class="t-score-high">87%</span></td>
-            <td><span class="t-file">確定申告2024.pdf</span></td>
-            <td class="t-out">令和5年分 確定申告書 収入金額...</td>
-            <td class="t-out">~/Documents/税務</td>
-          </tr>
-          <tr>
-            <td><span class="t-score-high">74%</span></td>
-            <td><span class="t-file">医療費まとめ.xlsx</span></td>
-            <td class="t-out">医療費控除の明細 合計金額...</td>
-            <td class="t-out">~/Documents/税務</td>
-          </tr>
-          <tr>
-            <td><span class="t-score-mid">61%</span></td>
-            <td><span class="t-file">freee_export.csv</span></td>
-            <td class="t-out">2023年度 収支一覧 売上合計...</td>
-            <td class="t-out">~/Downloads</td>
-          </tr>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- FEATURES -->
-<section class="section">
-  <div class="section-label">Features</div>
-  <div class="features">
-    <div class="feature">
-      <div class="feature-icon">🔍</div>
-      <h3>自然言語で検索</h3>
-      <p>「田中さんに送った提案書」「Pythonのasync処理のメモ」など、記憶のままで検索できる。</p>
-    </div>
-    <div class="feature">
-      <div class="feature-icon">🏠</div>
-      <h3>完全ローカル動作</h3>
-      <p>Ollama経由でLLMをローカル実行。ファイルは一切外部に出ない。ネット接続も不要。</p>
-    </div>
-    <div class="feature">
-      <div class="feature-icon">⚡</div>
-      <h3>インクリメンタル更新</h3>
-      <p>初回以降は変更ファイルだけ再インデックス。2回目から大幅に高速化される。</p>
-    </div>
-    <div class="feature">
-      <div class="feature-icon">📄</div>
-      <h3>多形式に対応</h3>
-      <p>PDF・Word・Markdown・コード・JSON・CSVなど主要な形式をすべてカバー。</p>
-    </div>
-    <div class="feature">
-      <div class="feature-icon">🆓</div>
-      <h3>永久無料・OSS</h3>
-      <p>MITライセンスのオープンソース。サブスクも課金もない。フォーク歓迎。</p>
-    </div>
-    <div class="feature">
-      <div class="feature-icon">🎯</div>
-      <h3>重複排除された結果</h3>
-      <p>同一ファイルの複数ヒットを自動整理。ファイルごとにベストスコアだけを表示。</p>
+<section id="features">
+  <div class="section-inner">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">なぜ Attic なのか</h2>
+    <p class="section-sub">クラウドに送らない。学習されない。あなたのファイルはあなたのものだけ。</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>完全ローカル処理</h3>
+        <p>データは一切外部に送信されません。埋め込みモデルも検索も、すべてあなたのマシン上で完結します。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🧠</div>
+        <h3>自然言語検索</h3>
+        <p>ファイル名を覚えていなくても大丈夫。「Q1の予算報告」「田中さんとの会議メモ」など意味で検索できます。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>高速ベクトル検索</h3>
+        <p>ChromaDB によるベクトルインデックスで、数百件のドキュメントも瞬時に意味検索。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📁</div>
+        <h3>多様なファイル対応</h3>
+        <p>PDF・Word・テキスト・Markdown・コードなど、日常使うほぼすべての形式に対応。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔄</div>
+        <h3>差分インデックス</h3>
+        <p>変更されたファイルだけを再インデックス。大量のファイルがあっても2回目以降は高速です。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🆓</div>
+        <h3>無料・オープンソース</h3>
+        <p>MIT ライセンス。サブスクリプションなし、API キーなし、登録不要。今すぐ始められます。</p>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- HOW IT WORKS -->
-<section class="section">
-  <div class="section-label">How It Works</div>
-  <div class="pipeline">
-    <span class="pipe-step">ファイル</span>
-    <span class="pipe-arrow">→</span>
-    <span class="pipe-step">テキスト抽出</span>
-    <span class="pipe-arrow">→</span>
-    <span class="pipe-step">チャンク分割</span>
-    <span class="pipe-arrow">→</span>
-    <span class="pipe-step">Ollama埋め込み</span>
-    <span class="pipe-arrow">→</span>
-    <span class="pipe-step">ChromaDB</span>
-  </div>
-  <div class="pipeline-note">
-    埋め込みモデルは <code>nomic-embed-text</code>（Ollama経由でローカル動作）。
-    ベクトルDBは <code>ChromaDB</code>（<code>~/.attic/db/</code> に保存）。
-    検索クエリも同じモデルで埋め込み、コサイン類似度でマッチングする。
+<section id="how">
+  <div class="section-inner">
+    <div class="section-label">How It Works</div>
+    <h2 class="section-title">仕組み</h2>
+    <p class="section-sub">ファイルをチャンクに分割し、Ollama で埋め込みベクトルに変換。ChromaDB に保存して高速検索します。</p>
+
+    <div class="pipeline">
+      <div class="pipe-step">
+        <div class="pipe-box">📄 Files</div>
+        <div class="pipe-label">あなたのファイル</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-box">✂️ Chunking</div>
+        <div class="pipe-label">テキスト分割</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step pipe-highlight">
+        <div class="pipe-box">🧠 Ollama</div>
+        <div class="pipe-label">埋め込みベクトル生成</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step pipe-highlight">
+        <div class="pipe-box">🗄️ ChromaDB</div>
+        <div class="pipe-label">ローカル保存</div>
+      </div>
+    </div>
+
+    <div class="pipeline">
+      <div class="pipe-step">
+        <div class="pipe-box">🔍 Query</div>
+        <div class="pipe-label">自然言語クエリ</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step pipe-highlight">
+        <div class="pipe-box">🧠 Ollama</div>
+        <div class="pipe-label">クエリのベクトル化</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step pipe-highlight">
+        <div class="pipe-box">📐 Similarity</div>
+        <div class="pipe-label">コサイン類似度検索</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-box">✅ Results</div>
+        <div class="pipe-label">関連ファイルを表示</div>
+      </div>
+    </div>
+
+    <div class="how-detail">
+      <div class="how-item">
+        <h4>nomic-embed-text</h4>
+        <p>Ollama 経由でローカル実行される埋め込みモデル。高品質な多言語対応ベクトルを生成します。</p>
+      </div>
+      <div class="how-item">
+        <h4>ChromaDB</h4>
+        <p>オープンソースのベクトルデータベース。インデックスは <code>~/.attic/db</code> にローカル保存されます。</p>
+      </div>
+      <div class="how-item">
+        <h4>差分更新</h4>
+        <p>ファイルのハッシュを管理し、変更分だけを再インデックス。効率的に最新状態を維持します。</p>
+      </div>
+    </div>
   </div>
 </section>
 
 <!-- QUICK START -->
-<section class="section" id="quickstart">
-  <div class="section-label">Quick Start</div>
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">01</div>
-      <div class="step-body">
-        <h4>Ollama をインストール・起動</h4>
-        <p><a href="https://ollama.com" target="_blank" style="color:var(--accent2)">ollama.com</a> からインストール後：</p>
-        <div class="code-block">
-          ollama serve<br>
-          ollama pull nomic-embed-text
+<section id="quickstart">
+  <div class="section-inner">
+    <div class="section-label">Quick Start</div>
+    <h2 class="section-title">4ステップで始める</h2>
+    <p class="section-sub">Python 3.10 以上と Ollama が必要です。</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Ollama をインストールして埋め込みモデルを取得</h3>
+          <p><a href="https://ollama.com" target="_blank" rel="noopener" style="color:var(--accent)">ollama.com</a> からインストール後、モデルを pull します。</p>
+          <div class="code-block">ollama pull nomic-embed-text</div>
         </div>
       </div>
-    </div>
-    <div class="step">
-      <div class="step-num">02</div>
-      <div class="step-body">
-        <h4>依存パッケージをインストール</h4>
-        <div class="code-block">
-          pip install -r requirements.txt
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>リポジトリをクローンして依存関係をインストール</h3>
+          <div class="code-block">git clone https://github.com/CHUNK-jp/attic.git &amp;&amp; cd attic<br/>pip install -r requirements.txt</div>
         </div>
       </div>
-    </div>
-    <div class="step">
-      <div class="step-num">03</div>
-      <div class="step-body">
-        <h4>フォルダをインデックス化</h4>
-        <div class="code-block">
-          python attic.py index ~/Documents
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>フォルダをインデックス</h3>
+          <div class="code-block">python3 attic.py index ~/Documents</div>
         </div>
       </div>
-    </div>
-    <div class="step">
-      <div class="step-num">04</div>
-      <div class="step-body">
-        <h4>自然言語で検索</h4>
-        <div class="code-block">
-          <span class="c-accent">python attic.py search</span> <span style="color:#a8d8a8">"去年の確定申告の資料"</span><br>
-          <span class="c-accent">python attic.py search</span> <span style="color:#a8d8a8">"Q1 budget report"</span><br>
-          <span class="c-accent">python attic.py search</span> <span style="color:#a8d8a8">"Pythonのasync処理のメモ"</span>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h3>自然言語で検索</h3>
+          <div class="code-block">python3 attic.py search "Q1 budget report"</div>
         </div>
       </div>
     </div>
@@ -540,51 +605,49 @@
 </section>
 
 <!-- FILE TYPES -->
-<section class="section">
-  <div class="section-label">Supported File Types</div>
-  <div class="filetypes">
-    <span class="ft">.pdf</span>
-    <span class="ft">.docx</span>
-    <span class="ft">.txt</span>
-    <span class="ft">.md</span>
-    <span class="ft">.rst</span>
-    <span class="ft">.py</span>
-    <span class="ft">.js</span>
-    <span class="ft">.ts</span>
-    <span class="ft">.jsx</span>
-    <span class="ft">.tsx</span>
-    <span class="ft">.sh</span>
-    <span class="ft">.html</span>
-    <span class="ft">.css</span>
-    <span class="ft">.json</span>
-    <span class="ft">.yaml</span>
-    <span class="ft">.yml</span>
-    <span class="ft">.csv</span>
-    <span class="ft">.toml</span>
-  </div>
-</section>
-
-<!-- CTA -->
-<section class="cta-section">
-  <h2>さっそく試してみる</h2>
-  <p>セットアップは5分。あとは自然言語で検索するだけ。</p>
-  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
-    <a href="https://github.com/CHUNK-jp/attic" class="btn btn-primary" target="_blank">
-      ⭐ GitHub で見る
-    </a>
-    <a href="#quickstart" class="btn btn-secondary">
-      クイックスタート →
-    </a>
+<section class="filetypes">
+  <div class="section-inner">
+    <div class="section-label">対応ファイル形式</div>
+    <h2 class="section-title">あらゆるファイルを検索対象に</h2>
+    <p class="section-sub">主要なドキュメント形式とコードファイルをサポート。</p>
+    <div class="tags">
+      <span class="tag">.pdf</span>
+      <span class="tag">.docx</span>
+      <span class="tag">.txt</span>
+      <span class="tag">.md</span>
+      <span class="tag">.py</span>
+      <span class="tag">.js</span>
+      <span class="tag">.ts</span>
+      <span class="tag">.jsx</span>
+      <span class="tag">.tsx</span>
+      <span class="tag">.json</span>
+      <span class="tag">.yaml</span>
+      <span class="tag">.yml</span>
+      <span class="tag">.csv</span>
+      <span class="tag">.html</span>
+      <span class="tag">.css</span>
+      <span class="tag">.sh</span>
+      <span class="tag">.rb</span>
+      <span class="tag">.go</span>
+      <span class="tag">.rs</span>
+      <span class="tag">.java</span>
+      <span class="tag">.c</span>
+      <span class="tag">.cpp</span>
+      <span class="tag">.toml</span>
+      <span class="tag">.ini</span>
+      <span class="tag">.xml</span>
+    </div>
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <p>
-    Built by <a href="https://github.com/CHUNK-jp" target="_blank">CHUNK-jp</a> ·
-    <a href="https://CHUNK-jp.github.io/">Tools</a> ·
-    <a href="https://github.com/CHUNK-jp/attic" target="_blank">GitHub</a>
-  </p>
+  <div class="footer-links">
+    <a href="https://github.com/CHUNK-jp/attic" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://chunk-jp.github.io/" target="_blank" rel="noopener">CHUNK-jp Portal</a>
+    <a href="https://github.com/CHUNK-jp/attic/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
+  </div>
+  <p>Built by <a href="https://github.com/CHUNK-jp" target="_blank" rel="noopener">CHUNK-jp</a> · No cloud. No subscription. Just your files.</p>
 </footer>
 
 </body>
