@@ -1,1 +1,591 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attic — Search Your Digital Life, Locally</title>
+  <meta name="description" content="ローカルLLMで動く自然言語ファイル検索ツール。クラウドなし・サブスクなし。" />
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --bg2: #141414;
+      --bg3: #1a1a1a;
+      --border: #2a2a2a;
+      --text: #e8e8e8;
+      --muted: #888;
+      --accent: #7c6aff;
+      --accent2: #a08fff;
+      --green: #4ade80;
+      --red: #f87171;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
 
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      padding: 1.2rem 2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: var(--muted);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--text); }
+    .nav-links { display: flex; gap: 1.5rem; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 5rem 2rem 3rem;
+    }
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 1.4rem;
+    }
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.4rem;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--accent2);
+    }
+    .hero-sub {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 520px;
+      margin-bottom: 2.4rem;
+    }
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 2.4rem;
+    }
+    .badge {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 0.3rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--muted);
+    }
+    .badge.green { border-color: #2d5a3d; color: var(--green); }
+    .badge.purple { border-color: #3d3560; color: var(--accent2); }
+
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.4rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--accent2); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent2); }
+
+    /* ── TERMINAL DEMO ── */
+    .demo-wrap {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 0 2rem 4rem;
+    }
+    .terminal {
+      background: #0a0a0a;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .terminal-bar {
+      background: #1c1c1c;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #febc2e; }
+    .dot-g { background: #28c840; }
+    .terminal-title {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-left: 0.5rem;
+    }
+    .terminal-body {
+      padding: 1.4rem 1.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.8;
+    }
+    .t-prompt { color: var(--accent); }
+    .t-cmd { color: var(--text); }
+    .t-comment { color: #555; }
+    .t-out { color: #aaa; }
+    .t-score-high { color: var(--green); }
+    .t-score-mid { color: #facc15; }
+    .t-file { color: var(--accent2); }
+    .t-table {
+      margin: 0.5rem 0;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    .t-table td {
+      padding: 0.15rem 0.8rem 0.15rem 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .t-divider {
+      border: none;
+      border-top: 1px solid #222;
+      margin: 1rem 0;
+    }
+
+    /* ── FEATURES ── */
+    .section {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      border-top: 1px solid var(--border);
+    }
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 1.8rem;
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.2rem;
+    }
+    .feature {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.4rem;
+    }
+    .feature-icon {
+      font-size: 1.4rem;
+      margin-bottom: 0.8rem;
+    }
+    .feature h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+    .feature p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .pipeline {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+    .pipe-step {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.6rem 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .pipe-arrow {
+      color: var(--accent);
+      font-size: 1rem;
+      padding: 0 0.4rem;
+    }
+    .pipeline-note {
+      margin-top: 1.2rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .pipeline-note code {
+      font-family: var(--font-mono);
+      background: var(--bg3);
+      padding: 0.15rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.8rem;
+      color: var(--accent2);
+    }
+
+    /* ── QUICK START ── */
+    .steps { display: flex; flex-direction: column; gap: 1.2rem; margin-top: 1.5rem; }
+    .step { display: flex; gap: 1.2rem; }
+    .step-num {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent);
+      padding-top: 0.15rem;
+      min-width: 1.8rem;
+    }
+    .step-body h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.4rem; }
+    .step-body p { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.5rem; }
+    .code-block {
+      background: #0a0a0a;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.8rem 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: #ccc;
+      overflow-x: auto;
+      line-height: 1.7;
+    }
+    .code-block .c-accent { color: var(--accent2); }
+    .code-block .c-muted { color: #555; }
+
+    /* ── FILE TYPES ── */
+    .filetypes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1.2rem;
+    }
+    .ft {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      padding: 0.3rem 0.65rem;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--accent2);
+    }
+
+    /* ── CTA ── */
+    .cta-section {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 3rem 2rem 5rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    .cta-section h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 0.8rem;
+      letter-spacing: -0.02em;
+    }
+    .cta-section p { color: var(--muted); margin-bottom: 2rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+
+    @media (max-width: 600px) {
+      .pipeline { gap: 0.3rem; }
+      .pipe-arrow { padding: 0 0.2rem; }
+      .hero { padding-top: 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="https://CHUNK-jp.github.io/" class="nav-logo">
+    <span>CHUNK-jp</span> / attic
+  </a>
+  <div class="nav-links">
+    <a href="https://CHUNK-jp.github.io/">← Tools</a>
+    <a href="https://github.com/CHUNK-jp/attic" target="_blank">GitHub</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">Open Source · Local · Free</div>
+  <h1>あのファイル、<em>自然言語</em>で<br>すぐ見つかる。</h1>
+  <p class="hero-sub">
+    Attic はローカルLLMを使ったパーソナル検索エンジン。
+    ファイル名を忘れても、内容の記憶だけで検索できる。
+    クラウドなし・サブスクなし・データはすべて手元に。
+  </p>
+  <div class="badges">
+    <span class="badge green">100% Offline</span>
+    <span class="badge green">No Cloud</span>
+    <span class="badge green">No Subscription</span>
+    <span class="badge purple">Powered by Ollama</span>
+    <span class="badge purple">Python 3.10+</span>
+    <span class="badge">MIT License</span>
+  </div>
+  <div class="hero-actions">
+    <a href="https://github.com/CHUNK-jp/attic" class="btn btn-primary" target="_blank">
+      ⭐ GitHub で見る
+    </a>
+    <a href="#quickstart" class="btn btn-secondary">
+      クイックスタート →
+    </a>
+  </div>
+</section>
+
+<!-- TERMINAL DEMO -->
+<div class="demo-wrap">
+  <div class="terminal">
+    <div class="terminal-bar">
+      <span class="dot dot-r"></span>
+      <span class="dot dot-y"></span>
+      <span class="dot dot-g"></span>
+      <span class="terminal-title">bash — attic</span>
+    </div>
+    <div class="terminal-body">
+      <div>
+        <span class="t-prompt">$ </span>
+        <span class="t-cmd">python attic.py index ~/Documents</span>
+      </div>
+      <div class="t-out">✓ Ollama connected (model: nomic-embed-text)</div>
+      <div class="t-out">Found <strong>1,247</strong> files in ~/Documents</div>
+      <div class="t-out">✓ Done! Indexed: 1,247  Skipped: 0  Errors: 0</div>
+      <hr class="t-divider" />
+      <div>
+        <span class="t-prompt">$ </span>
+        <span class="t-cmd">python attic.py search "去年の確定申告の資料"</span>
+      </div>
+      <div class="t-out" style="margin-top:0.4rem">Searching 18,432 chunks...</div>
+      <div style="margin-top:0.6rem; overflow-x:auto;">
+        <table class="t-table">
+          <tr>
+            <td><span class="t-score-high">87%</span></td>
+            <td><span class="t-file">確定申告2024.pdf</span></td>
+            <td class="t-out">令和5年分 確定申告書 収入金額...</td>
+            <td class="t-out">~/Documents/税務</td>
+          </tr>
+          <tr>
+            <td><span class="t-score-high">74%</span></td>
+            <td><span class="t-file">医療費まとめ.xlsx</span></td>
+            <td class="t-out">医療費控除の明細 合計金額...</td>
+            <td class="t-out">~/Documents/税務</td>
+          </tr>
+          <tr>
+            <td><span class="t-score-mid">61%</span></td>
+            <td><span class="t-file">freee_export.csv</span></td>
+            <td class="t-out">2023年度 収支一覧 売上合計...</td>
+            <td class="t-out">~/Downloads</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="section">
+  <div class="section-label">Features</div>
+  <div class="features">
+    <div class="feature">
+      <div class="feature-icon">🔍</div>
+      <h3>自然言語で検索</h3>
+      <p>「田中さんに送った提案書」「Pythonのasync処理のメモ」など、記憶のままで検索できる。</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🏠</div>
+      <h3>完全ローカル動作</h3>
+      <p>Ollama経由でLLMをローカル実行。ファイルは一切外部に出ない。ネット接続も不要。</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">⚡</div>
+      <h3>インクリメンタル更新</h3>
+      <p>初回以降は変更ファイルだけ再インデックス。2回目から大幅に高速化される。</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📄</div>
+      <h3>多形式に対応</h3>
+      <p>PDF・Word・Markdown・コード・JSON・CSVなど主要な形式をすべてカバー。</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🆓</div>
+      <h3>永久無料・OSS</h3>
+      <p>MITライセンスのオープンソース。サブスクも課金もない。フォーク歓迎。</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🎯</div>
+      <h3>重複排除された結果</h3>
+      <p>同一ファイルの複数ヒットを自動整理。ファイルごとにベストスコアだけを表示。</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section">
+  <div class="section-label">How It Works</div>
+  <div class="pipeline">
+    <span class="pipe-step">ファイル</span>
+    <span class="pipe-arrow">→</span>
+    <span class="pipe-step">テキスト抽出</span>
+    <span class="pipe-arrow">→</span>
+    <span class="pipe-step">チャンク分割</span>
+    <span class="pipe-arrow">→</span>
+    <span class="pipe-step">Ollama埋め込み</span>
+    <span class="pipe-arrow">→</span>
+    <span class="pipe-step">ChromaDB</span>
+  </div>
+  <div class="pipeline-note">
+    埋め込みモデルは <code>nomic-embed-text</code>（Ollama経由でローカル動作）。
+    ベクトルDBは <code>ChromaDB</code>（<code>~/.attic/db/</code> に保存）。
+    検索クエリも同じモデルで埋め込み、コサイン類似度でマッチングする。
+  </div>
+</section>
+
+<!-- QUICK START -->
+<section class="section" id="quickstart">
+  <div class="section-label">Quick Start</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-body">
+        <h4>Ollama をインストール・起動</h4>
+        <p><a href="https://ollama.com" target="_blank" style="color:var(--accent2)">ollama.com</a> からインストール後：</p>
+        <div class="code-block">
+          ollama serve<br>
+          ollama pull nomic-embed-text
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-body">
+        <h4>依存パッケージをインストール</h4>
+        <div class="code-block">
+          pip install -r requirements.txt
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-body">
+        <h4>フォルダをインデックス化</h4>
+        <div class="code-block">
+          python attic.py index ~/Documents
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-body">
+        <h4>自然言語で検索</h4>
+        <div class="code-block">
+          <span class="c-accent">python attic.py search</span> <span style="color:#a8d8a8">"去年の確定申告の資料"</span><br>
+          <span class="c-accent">python attic.py search</span> <span style="color:#a8d8a8">"Q1 budget report"</span><br>
+          <span class="c-accent">python attic.py search</span> <span style="color:#a8d8a8">"Pythonのasync処理のメモ"</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FILE TYPES -->
+<section class="section">
+  <div class="section-label">Supported File Types</div>
+  <div class="filetypes">
+    <span class="ft">.pdf</span>
+    <span class="ft">.docx</span>
+    <span class="ft">.txt</span>
+    <span class="ft">.md</span>
+    <span class="ft">.rst</span>
+    <span class="ft">.py</span>
+    <span class="ft">.js</span>
+    <span class="ft">.ts</span>
+    <span class="ft">.jsx</span>
+    <span class="ft">.tsx</span>
+    <span class="ft">.sh</span>
+    <span class="ft">.html</span>
+    <span class="ft">.css</span>
+    <span class="ft">.json</span>
+    <span class="ft">.yaml</span>
+    <span class="ft">.yml</span>
+    <span class="ft">.csv</span>
+    <span class="ft">.toml</span>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2>さっそく試してみる</h2>
+  <p>セットアップは5分。あとは自然言語で検索するだけ。</p>
+  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+    <a href="https://github.com/CHUNK-jp/attic" class="btn btn-primary" target="_blank">
+      ⭐ GitHub で見る
+    </a>
+    <a href="#quickstart" class="btn btn-secondary">
+      クイックスタート →
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>
+    Built by <a href="https://github.com/CHUNK-jp" target="_blank">CHUNK-jp</a> ·
+    <a href="https://CHUNK-jp.github.io/">Tools</a> ·
+    <a href="https://github.com/CHUNK-jp/attic" target="_blank">GitHub</a>
+  </p>
+</footer>
+
+</body>
+</html>
