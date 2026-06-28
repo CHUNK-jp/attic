@@ -1,664 +1,504 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Attic — Find anything on your Mac. Instantly.</title>
-<meta name="description" content="Attic indexes your local files with lightning speed. No cloud upload, no tracking — just results, in milliseconds." />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body { background: #09090B; color: #FAFAFA; font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; line-height: 1; }
-::selection { background: rgba(59,130,246,0.25); color: #FAFAFA; }
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #27272A; border-radius: 3px; }
-a { color: inherit; text-decoration: none; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: #09090B; color: #FAFAFA; font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+  ::selection { background: rgba(59,130,246,0.25); color: #FAFAFA; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #27272A; border-radius: 3px; }
+  input { caret-color: #3B82F6; }
+  input::placeholder { color: #52525B; }
 
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.5; transform: scale(0.85); }
-}
-@keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes drop-in {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+  @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.85); } }
+  @keyframes fade-in-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes drop-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ── NAV ── */
-nav {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(9,9,11,0.85);
-  border-bottom: 1px solid #18181B;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
-.nav-inner {
-  max-width: 1100px; margin: 0 auto; padding: 0 24px;
-  display: flex; align-items: center; height: 64px; gap: 40px;
-}
-.nav-logo { display: flex; align-items: center; gap: 10px; flex-shrink: 0; text-decoration: none; }
-.nav-logo:hover { text-decoration: none; color: inherit; }
-.nav-logo-icon {
-  width: 32px; height: 32px;
-  background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2);
-  border-radius: 8px; display: flex; align-items: center; justify-content: center;
-}
-.nav-logo-text { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
-.nav-links { display: flex; align-items: center; gap: 4px; flex: 1; }
-.nav-links a {
-  font-size: 14px; color: #71717A; padding: 6px 12px; border-radius: 6px;
-  transition: color 0.15s, background 0.15s;
-}
-.nav-links a:hover { color: #FAFAFA; background: #111113; }
-.nav-cta {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: #3B82F6; color: #fff;
-  font-size: 13px; font-weight: 500; padding: 8px 18px;
-  border-radius: 8px; flex-shrink: 0; letter-spacing: -0.01em;
-  transition: background 0.15s;
-}
-.nav-cta:hover { background: #2563EB; }
+  a { transition: color 0.15s, background 0.15s, border-color 0.15s; }
 
-/* ── HERO ── */
-.hero {
-  position: relative; padding: 128px 24px 96px; text-align: center; overflow: hidden;
-  animation: fade-in-up 0.6s ease both;
-}
-.hero-bg-glow {
-  position: absolute; inset: 0;
-  background: radial-gradient(ellipse 70% 55% at 50% -5%, rgba(59,130,246,0.11) 0%, transparent 70%);
-  pointer-events: none;
-}
-.hero-bg-grid {
-  position: absolute; inset: 0;
-  background-image: linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
-  background-size: 44px 44px;
-  pointer-events: none;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 0%, transparent 75%);
-  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 0%, transparent 75%);
-}
-.hero-inner { position: relative; max-width: 860px; margin: 0 auto; }
-.hero-badge {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.18);
-  border-radius: 100px; padding: 6px 16px; margin-bottom: 36px;
-}
-.hero-badge-dot {
-  width: 6px; height: 6px; border-radius: 50%; background: #3B82F6;
-  animation: pulse-dot 2.4s ease-in-out infinite;
-}
-.hero-badge-text { font-size: 13px; color: #60A5FA; font-weight: 500; letter-spacing: -0.01em; }
-.hero h1 {
-  font-size: clamp(2.8rem, 7vw, 4.75rem);
-  font-weight: 700; line-height: 1.0; letter-spacing: -0.04em; margin-bottom: 24px;
-}
-.hero h1 .hl { color: #3B82F6; }
-.hero-sub {
-  font-size: 19px; color: #71717A; line-height: 1.65;
-  max-width: 520px; margin: 0 auto 52px; font-weight: 400;
-}
+  .nav-link { font-size: 14px; color: #71717A; text-decoration: none; padding: 6px 12px; border-radius: 6px; }
+  .nav-link:hover { color: #FAFAFA; background: #111113; }
 
-/* ── SEARCH BOX ── */
-.search-wrap { position: relative; max-width: 660px; margin: 0 auto 36px; }
-.search-box {
-  display: flex; align-items: center; gap: 12px;
-  background: #111113; border: 1px solid #27272A;
-  border-radius: 12px; padding: 15px 20px;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-.search-box.focused {
-  border-color: #3B82F6;
-  box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
-}
-.search-input {
-  flex: 1; background: none; border: none; outline: none;
-  color: #FAFAFA; font-size: 16px;
-  font-family: 'Inter', system-ui, sans-serif;
-  min-width: 0; caret-color: #3B82F6;
-}
-.search-input::placeholder { color: #52525B; }
-.search-kbd {
-  display: inline-flex; align-items: center;
-  background: #1C1C1F; border: 1px solid #27272A;
-  border-radius: 5px; padding: 3px 8px;
-  font-size: 12px; color: #71717A;
-  font-family: 'JetBrains Mono', monospace;
-  flex-shrink: 0; gap: 1px;
-}
-.search-dropdown {
-  position: absolute; top: calc(100% + 8px); left: 0; right: 0;
-  background: #111113; border: 1px solid #27272A; border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(59,130,246,0.04);
-  text-align: left; z-index: 50;
-  animation: drop-in 0.12s ease both;
-}
-.dropdown-header {
-  padding: 8px 14px 7px; border-bottom: 1px solid #18181B;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.dropdown-header-label {
-  font-size: 10px; font-weight: 600; color: #52525B;
-  text-transform: uppercase; letter-spacing: 0.08em;
-}
-.dropdown-header-count {
-  font-size: 10px; color: #3F3F46; font-family: 'JetBrains Mono', monospace;
-}
-.result-row {
-  display: flex; align-items: center; gap: 12px;
-  padding: 11px 16px; border-bottom: 1px solid #18181B;
-  cursor: pointer; transition: background 0.1s;
-}
-.result-row:hover { background: #18181B; }
-.result-badge {
-  width: 34px; height: 34px; border-radius: 6px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 9px; font-weight: 700;
-  font-family: 'JetBrains Mono', monospace;
-  flex-shrink: 0; letter-spacing: 0.02em;
-}
-.result-name {
-  font-size: 14px; font-weight: 500; color: #FAFAFA;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.result-path {
-  font-size: 12px; color: #52525B; margin-top: 2px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  font-family: 'JetBrains Mono', monospace;
-}
-.result-meta { font-size: 11px; color: #3F3F46; white-space: nowrap; padding-left: 12px; }
-.dropdown-footer {
-  padding: 8px 14px; border-top: 1px solid #18181B;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.dropdown-footer-hint { font-size: 11px; color: #52525B; }
+  .nav-cta { display: inline-flex; align-items: center; gap: 8px; background: #3B82F6; color: #fff; font-size: 13px; font-weight: 500; padding: 8px 18px; border-radius: 8px; text-decoration: none; flex-shrink: 0; letter-spacing: -0.01em; }
+  .nav-cta:hover { background: #2563EB; }
 
-/* ── HERO CTAs ── */
-.hero-ctas { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
-.btn-primary {
-  display: inline-flex; align-items: center; gap: 10px;
-  background: #3B82F6; color: #fff;
-  font-size: 15px; font-weight: 600; padding: 14px 28px;
-  border-radius: 10px; letter-spacing: -0.01em; transition: background 0.15s;
-}
-.btn-primary:hover { background: #2563EB; }
-.btn-secondary {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: transparent; color: #A1A1AA;
-  font-size: 15px; font-weight: 500; padding: 14px 24px;
-  border-radius: 10px; border: 1px solid #27272A;
-  transition: border-color 0.15s, color 0.15s;
-}
-.btn-secondary:hover { border-color: #3F3F46; color: #FAFAFA; }
-.hero-note { margin-top: 18px; font-size: 13px; color: #52525B; }
+  .btn-primary { display: inline-flex; align-items: center; gap: 10px; background: #3B82F6; color: #fff; font-size: 15px; font-weight: 600; padding: 14px 28px; border-radius: 10px; text-decoration: none; letter-spacing: -0.01em; }
+  .btn-primary:hover { background: #2563EB; }
 
-/* ── STATS STRIP ── */
-.stats-strip { border-top: 1px solid #18181B; border-bottom: 1px solid #18181B; background: #0C0C0E; }
-.stats-grid {
-  max-width: 1100px; margin: 0 auto; padding: 0 24px;
-  display: grid; grid-template-columns: repeat(3, 1fr);
-}
-.stat-cell { padding: 44px 40px; text-align: center; }
-.stat-cell:not(:last-child) { border-right: 1px solid #18181B; }
-.stat-value { font-size: 48px; font-weight: 700; letter-spacing: -0.04em; color: #FAFAFA; }
-.stat-label { font-size: 14px; color: #71717A; margin-top: 8px; }
+  .btn-secondary { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: #A1A1AA; font-size: 15px; font-weight: 500; padding: 14px 24px; border-radius: 10px; border: 1px solid #27272A; text-decoration: none; }
+  .btn-secondary:hover { border-color: #3F3F46; color: #FAFAFA; }
 
-/* ── FEATURES ── */
-.features-section { padding: 120px 24px; }
-.section-inner { max-width: 1100px; margin: 0 auto; }
-.section-header { text-align: center; margin-bottom: 72px; }
-.section-eyebrow {
-  display: inline-block; font-size: 11px; font-weight: 600; color: #52525B;
-  text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px;
-}
-.section-title { font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; letter-spacing: -0.03em; margin-bottom: 16px; }
-.section-sub { font-size: 18px; color: #71717A; max-width: 440px; margin: 0 auto; line-height: 1.6; }
-.features-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 1px; background: #18181B; border-radius: 16px; overflow: hidden;
-  border: 1px solid #18181B;
-}
-.feature-card { background: #09090B; padding: 40px 36px; transition: background 0.15s; }
-.feature-card:hover { background: #0E0E10; }
-.feature-icon {
-  width: 44px; height: 44px;
-  background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.12);
-  border-radius: 10px; display: flex; align-items: center; justify-content: center;
-  margin-bottom: 20px;
-}
-.feature-card h3 { font-size: 17px; font-weight: 600; margin-bottom: 10px; letter-spacing: -0.01em; }
-.feature-card p { font-size: 14px; color: #71717A; line-height: 1.7; }
+  .btn-primary-lg { display: inline-flex; align-items: center; gap: 10px; background: #3B82F6; color: #fff; font-size: 16px; font-weight: 600; padding: 16px 32px; border-radius: 12px; text-decoration: none; letter-spacing: -0.01em; }
+  .btn-primary-lg:hover { background: #2563EB; }
 
-/* ── HOW IT WORKS ── */
-.how-section { padding: 0 24px 120px; }
-.how-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; position: relative; }
-.how-connector {
-  position: absolute; top: 22px; left: calc(33.33% + 22px); right: calc(33.33% + 22px);
-  height: 1px;
-  background: linear-gradient(90deg, transparent, #3B82F6 30%, #3B82F6 70%, transparent);
-  pointer-events: none;
-}
-.how-step { padding: 0 40px; text-align: center; }
-.how-num-active {
-  width: 44px; height: 44px; border-radius: 50%;
-  background: #3B82F6; display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 28px; font-size: 15px; font-weight: 700; color: #fff;
-  position: relative; z-index: 1; box-shadow: 0 0 0 8px rgba(59,130,246,0.1);
-}
-.how-num {
-  width: 44px; height: 44px; border-radius: 50%;
-  background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3);
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 28px; font-size: 15px; font-weight: 700; color: #60A5FA;
-  position: relative; z-index: 1;
-}
-.how-step h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; letter-spacing: -0.01em; }
-.how-step p { font-size: 14px; color: #71717A; line-height: 1.7; }
+  .btn-secondary-lg { display: inline-flex; align-items: center; gap: 8px; background: #18181B; color: #A1A1AA; font-size: 16px; font-weight: 500; padding: 16px 28px; border-radius: 12px; border: 1px solid #27272A; text-decoration: none; }
+  .btn-secondary-lg:hover { border-color: #3F3F46; color: #FAFAFA; }
 
-/* ── CTA SECTION ── */
-.cta-section { padding: 0 24px 120px; }
-.cta-card {
-  max-width: 1100px; margin: 0 auto;
-  text-align: center; padding: 80px 48px;
-  background: #111113; border: 1px solid #1E1E23;
-  border-radius: 20px; position: relative; overflow: hidden;
-}
-.cta-bg-glow {
-  position: absolute; inset: 0;
-  background: radial-gradient(ellipse 50% 60% at 50% 0%, rgba(59,130,246,0.07) 0%, transparent 70%);
-  pointer-events: none;
-}
-.cta-line {
-  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-  width: 1px; height: 80px;
-  background: linear-gradient(to bottom, #3B82F6, transparent);
-}
-.cta-inner { position: relative; }
-.cta-title { font-size: clamp(2rem, 4vw, 3.25rem); font-weight: 700; letter-spacing: -0.03em; margin-bottom: 16px; }
-.cta-sub {
-  font-size: 18px; color: #71717A; margin-bottom: 44px;
-  line-height: 1.6; max-width: 400px; margin-left: auto; margin-right: auto;
-}
-.cta-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
-.btn-primary-lg {
-  display: inline-flex; align-items: center; gap: 10px;
-  background: #3B82F6; color: #fff;
-  font-size: 16px; font-weight: 600; padding: 16px 32px;
-  border-radius: 12px; letter-spacing: -0.01em; transition: background 0.15s;
-}
-.btn-primary-lg:hover { background: #2563EB; }
-.btn-ghost-lg {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: #18181B; color: #A1A1AA;
-  font-size: 16px; font-weight: 500; padding: 16px 28px;
-  border-radius: 12px; border: 1px solid #27272A;
-  transition: border-color 0.15s, color 0.15s;
-}
-.btn-ghost-lg:hover { border-color: #3F3F46; color: #FAFAFA; }
-.cta-note { font-size: 13px; color: #52525B; }
+  .feature-card { background: #09090B; padding: 40px 36px; transition: background 0.15s; }
+  .feature-card:hover { background: #0E0E10; }
 
-/* ── FOOTER ── */
-footer {
-  border-top: 1px solid #18181B; padding: 40px 24px;
-}
-.footer-inner {
-  max-width: 1100px; margin: 0 auto;
-  display: flex; align-items: center; justify-content: space-between;
-  flex-wrap: wrap; gap: 24px;
-}
-.footer-logo { display: flex; align-items: center; gap: 12px; }
-.footer-logo-icon {
-  width: 28px; height: 28px;
-  background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.18);
-  border-radius: 6px; display: flex; align-items: center; justify-content: center;
-}
-.footer-logo-text { font-size: 14px; font-weight: 600; }
-.footer-suite { font-size: 13px; color: #3F3F46; }
-.footer-links { display: flex; align-items: center; gap: 4px; }
-.footer-links a {
-  font-size: 13px; color: #52525B; padding: 4px 10px; border-radius: 5px;
-  transition: color 0.15s;
-}
-.footer-links a:hover { color: #A1A1AA; }
-.footer-copy { font-size: 13px; color: #3F3F46; }
+  .guide-card { background: #09090B; padding: 40px 40px; transition: background 0.15s; }
+  .guide-card:hover { background: #0E0E10; }
 
-@media (max-width: 768px) {
-  .nav-links { display: none; }
-  .features-grid { grid-template-columns: 1fr; }
-  .stats-grid { grid-template-columns: 1fr; }
-  .stat-cell:not(:last-child) { border-right: none; border-bottom: 1px solid #18181B; }
-  .how-steps { grid-template-columns: 1fr; gap: 48px; }
-  .how-connector { display: none; }
-  .footer-inner { flex-direction: column; align-items: flex-start; }
-  .hero h1 { font-size: 2.5rem; }
-}
+  .footer-link { font-size: 13px; color: #52525B; text-decoration: none; padding: 4px 10px; border-radius: 5px; }
+  .footer-link:hover { color: #A1A1AA; }
+
+  .search-row { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 11px 16px; border-bottom: 1px solid #18181B; transition: background 0.1s; }
+  .search-row:hover { background: #18181B; }
+  .search-row:last-child { border-bottom: none; }
+
+  @media (max-width: 768px) {
+    /* Nav: hide text links, keep logo + CTA */
+    .nav-link { display: none; }
+
+    /* Stats: single column */
+    .stats-grid { grid-template-columns: 1fr !important; }
+    .stats-grid > div { border-right: none !important; border-bottom: 1px solid #18181B; padding: 28px 24px !important; }
+    .stats-grid > div:last-child { border-bottom: none; }
+
+    /* Features: 1 column */
+    .features-grid-wrap { grid-template-columns: 1fr !important; }
+    .feature-card { padding: 28px 24px !important; }
+
+    /* Story: stack vertically */
+    .story-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+    .story-sticky { position: static !important; }
+
+    /* Guide: 1 column */
+    .guide-grid { grid-template-columns: 1fr !important; }
+    .guide-card { padding: 28px 24px !important; }
+
+    /* How it works: 1 column */
+    .howitworks-grid { grid-template-columns: 1fr !important; }
+    .howitworks-grid > div { padding: 0 20px !important; margin-bottom: 40px; }
+    .howitworks-connector { display: none !important; }
+
+    /* Section padding */
+    .section-pad { padding-left: 16px !important; padding-right: 16px !important; }
+
+    /* CTA card */
+    .cta-card { padding: 48px 24px !important; }
+
+    /* Hero font */
+    .hero-prose { font-size: 16px !important; }
+  }
 </style>
 </head>
 <body>
 
-<!-- ── NAV ── -->
-<nav>
-  <div class="nav-inner">
-    <a class="nav-logo" href="https://chunk-jp.github.io/">
-      <div class="nav-logo-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="17" height="17">
-          <path d="M3 11.5L12 3l9 8.5V21H3V11.5Z"/>
-          <circle cx="12" cy="15.5" r="3.5"/>
-          <path d="M14.5 18l2.5 2.5"/>
-        </svg>
+<!-- NAVIGATION -->
+<nav style="position: sticky; top: 0; z-index: 100;">
+  <div style="background: rgba(9,9,11,0.85); border-bottom: 1px solid #18181B; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+    <div style="max-width: 1100px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; height: 64px; gap: 40px;">
+      <a href="https://chunk-jp.github.io/" style="display: flex; align-items: center; gap: 10px; flex-shrink: 0; text-decoration: none; color: inherit;">
+        <div style="width: 32px; height: 32px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M3 11.5L12 3l9 8.5V21H3V11.5Z"/><circle cx="12" cy="15.5" r="3.5"/><path d="M14.5 18l2.5 2.5"/></svg>
+        </div>
+        <span style="font-size: 15px; font-weight: 600; letter-spacing: -0.01em;">Attic</span>
+      </a>
+      <div style="display: flex; align-items: center; gap: 4px; flex: 1;">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#how-it-works" class="nav-link">How it works</a>
+        <a href="#" class="nav-link">Docs</a>
+        <a href="https://github.com/CHUNK-jp/attic" class="nav-link">GitHub</a>
       </div>
-      <span class="nav-logo-text">Attic</span>
-    </a>
-    <div class="nav-links">
-      <a href="#features">Features</a>
-      <a href="#how-it-works">How it works</a>
-      <a href="https://github.com/CHUNK-jp/attic" target="_blank" rel="noopener">GitHub</a>
+      <a href="#download" class="nav-cta">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M8 2v8M5 7l3 3 3-3"/><path d="M2 12h12"/></svg>
+        Download for Mac
+      </a>
     </div>
-    <a class="nav-cta" href="#download">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
-        <path d="M8 2v8M5 7l3 3 3-3"/><path d="M2 12h12"/>
-      </svg>
-      Download for Mac
-    </a>
   </div>
 </nav>
 
-<!-- ── HERO ── -->
-<section class="hero">
-  <div class="hero-bg-glow"></div>
-  <div class="hero-bg-grid"></div>
-  <div class="hero-inner">
-    <div class="hero-badge">
-      <div class="hero-badge-dot"></div>
-      <span class="hero-badge-text">Local-first file search · macOS</span>
+<!-- HERO -->
+<section style="position: relative; padding: 128px 24px 96px; text-align: center; overflow: hidden;">
+  <div style="position: absolute; inset: 0; background: radial-gradient(ellipse 70% 55% at 50% -5%, rgba(59,130,246,0.11) 0%, transparent 70%); pointer-events: none;"></div>
+  <div style="position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px); background-size: 44px 44px; pointer-events: none; mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 0%, transparent 75%); -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 0%, transparent 75%);"></div>
+
+  <div style="position: relative; max-width: 860px; margin: 0 auto; animation: fade-in-up 0.6s ease both;">
+    <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.18); border-radius: 100px; padding: 6px 16px; margin-bottom: 36px;">
+      <div style="width: 6px; height: 6px; border-radius: 50%; background: #3B82F6; animation: pulse-dot 2.4s ease-in-out infinite;"></div>
+      <span style="font-size: 13px; color: #60A5FA; font-weight: 500; letter-spacing: -0.01em;">Local-first file search · macOS</span>
     </div>
-    <h1>Find <span class="hl">anything</span><br>on your Mac.<br>Instantly.</h1>
-    <p class="hero-sub">Attic indexes your local files with lightning speed. No cloud upload, no tracking — just results, in milliseconds.</p>
+
+    <h1 style="font-size: clamp(48px, 8vw, 76px); font-weight: 700; line-height: 1.0; letter-spacing: -0.04em; margin-bottom: 24px;">
+      Find <span style="color: #3B82F6;">anything</span><br>on your Mac.<br>Instantly.
+    </h1>
+
+    <p class="hero-prose" style="font-size: 19px; color: #71717A; line-height: 1.65; max-width: 520px; margin: 0 auto 52px; font-weight: 400;">
+      Attic indexes your local files with lightning speed. No cloud upload, no tracking — just results, in milliseconds.
+    </p>
 
     <!-- Search bar -->
-    <div class="search-wrap">
-      <div class="search-box" id="searchBox">
-        <svg viewBox="0 0 20 20" fill="none" stroke="#52525B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="17" height="17" style="flex-shrink:0;">
+    <div style="position: relative; max-width: 660px; margin: 0 auto 36px;">
+      <div id="search-box" style="display: flex; align-items: center; gap: 12px; background: #111113; border: 1px solid #27272A; border-radius: 12px; padding: 15px 20px; transition: border-color 0.15s, box-shadow 0.15s;">
+        <svg viewBox="0 0 20 20" fill="none" stroke="#52525B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="17" height="17" style="flex-shrink: 0;">
           <circle cx="9" cy="9" r="6"/><path d="M13.5 13.5L17 17"/>
         </svg>
         <input
-          id="searchInput"
-          class="search-input"
+          id="search-input"
           type="text"
           placeholder="Search your files… try 'report' or 'budget'"
-          autocomplete="off"
-          spellcheck="false"
+          style="flex: 1; background: none; border: none; outline: none; color: #FAFAFA; font-size: 16px; font-family: 'Inter', system-ui, sans-serif; min-width: 0;"
         />
-        <kbd class="search-kbd">⌘K</kbd>
+        <kbd style="display: inline-flex; align-items: center; background: #1C1C1F; border: 1px solid #27272A; border-radius: 5px; padding: 3px 8px; font-size: 12px; color: #71717A; font-family: 'JetBrains Mono', monospace; flex-shrink: 0;">⌘K</kbd>
       </div>
-      <div class="search-dropdown" id="searchDropdown" style="display:none;">
-        <div class="dropdown-header">
-          <span class="dropdown-header-label">Files</span>
-          <span class="dropdown-header-count" id="resultCount">0 results</span>
+
+      <!-- Results dropdown -->
+      <div id="search-dropdown" style="display: none; position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: #111113; border: 1px solid #27272A; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(59,130,246,0.04); text-align: left; z-index: 50; animation: drop-in 0.12s ease both;">
+        <div style="padding: 8px 14px 7px; border-bottom: 1px solid #18181B; display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 10px; font-weight: 600; color: #52525B; text-transform: uppercase; letter-spacing: 0.08em;">Files</span>
+          <span id="result-count" style="font-size: 10px; color: #3F3F46; font-family: 'JetBrains Mono', monospace;">0 results</span>
         </div>
-        <div id="resultList"></div>
-        <div class="dropdown-footer">
-          <span class="dropdown-footer-hint">↵ to open · ↑↓ to navigate</span>
-          <span class="dropdown-footer-hint">esc to close</span>
+        <div id="result-list"></div>
+        <div style="padding: 8px 14px; border-top: 1px solid #18181B; display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 11px; color: #52525B;">↵ to open · ↑↓ to navigate</span>
+          <span style="font-size: 11px; color: #52525B;">esc to close</span>
         </div>
       </div>
     </div>
 
-    <!-- CTAs -->
-    <div class="hero-ctas">
-      <a class="btn-primary" href="#download">
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-          <path d="M10 3v10M6 9l4 4 4-4"/><path d="M3 15h14"/>
-        </svg>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;">
+      <a href="#download" class="btn-primary">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M10 3v10M6 9l4 4 4-4"/><path d="M3 15h14"/></svg>
         Download for Mac — Free
       </a>
-      <a class="btn-secondary" href="https://github.com/CHUNK-jp/attic" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15">
-          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
-        </svg>
+      <a href="https://github.com/CHUNK-jp/attic" class="btn-secondary">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><polyline points="11.2 5.6 2.8 12 11.2 18.4"/><polyline points="18.2 5.6 9.8 12 18.2 18.4"/></svg>
         View on GitHub
       </a>
     </div>
-    <p class="hero-note">macOS 12 Ventura or later · No account required · 100% free</p>
+    <p style="margin-top: 18px; font-size: 13px; color: #52525B;">macOS 12 Ventura or later · No account required · 100% free</p>
   </div>
 </section>
 
-<!-- ── STATS STRIP ── -->
-<div class="stats-strip">
-  <div class="stats-grid">
-    <div class="stat-cell">
-      <div class="stat-value">&lt;50ms</div>
-      <div class="stat-label">Average search latency</div>
+<!-- STATS STRIP -->
+<div style="border-top: 1px solid #18181B; border-bottom: 1px solid #18181B; background: #0C0C0E;">
+  <div class="stats-grid" style="max-width: 1100px; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: repeat(3, 1fr);">
+    <div style="padding: 44px 40px; text-align: center; border-right: 1px solid #18181B;">
+      <div style="font-size: clamp(36px, 5vw, 48px); font-weight: 700; letter-spacing: -0.04em; color: #FAFAFA;">&lt;50ms</div>
+      <div style="font-size: 14px; color: #71717A; margin-top: 8px; font-weight: 400;">Average search latency</div>
     </div>
-    <div class="stat-cell">
-      <div class="stat-value">100%</div>
-      <div class="stat-label">Local — never leaves your Mac</div>
+    <div style="padding: 44px 40px; text-align: center; border-right: 1px solid #18181B;">
+      <div style="font-size: clamp(36px, 5vw, 48px); font-weight: 700; letter-spacing: -0.04em; color: #FAFAFA;">100%</div>
+      <div style="font-size: 14px; color: #71717A; margin-top: 8px; font-weight: 400;">Local — never leaves your Mac</div>
     </div>
-    <div class="stat-cell">
-      <div class="stat-value">50+</div>
-      <div class="stat-label">File formats supported</div>
+    <div style="padding: 44px 40px; text-align: center;">
+      <div style="font-size: clamp(36px, 5vw, 48px); font-weight: 700; letter-spacing: -0.04em; color: #FAFAFA;">50+</div>
+      <div style="font-size: 14px; color: #71717A; margin-top: 8px; font-weight: 400;">File formats supported</div>
     </div>
   </div>
 </div>
 
-<!-- ── FEATURES ── -->
-<section id="features" class="features-section">
-  <div class="section-inner">
-    <div class="section-header">
-      <div class="section-eyebrow">Features</div>
-      <h2 class="section-title">Everything you need.<br>Nothing you don't.</h2>
-      <p class="section-sub">Built for one job — finding your files — and doing it better than anything else.</p>
+<!-- FEATURES -->
+<section id="features" class="section-pad" style="padding: 120px 24px;">
+  <div style="max-width: 1100px; margin: 0 auto;">
+    <div style="text-align: center; margin-bottom: 72px;">
+      <div style="display: inline-block; font-size: 11px; font-weight: 600; color: #52525B; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px;">Features</div>
+      <h2 style="font-size: clamp(36px, 5vw, 48px); font-weight: 700; letter-spacing: -0.03em; margin-bottom: 16px;">Everything you need.<br>Nothing you don't.</h2>
+      <p style="font-size: 18px; color: #71717A; max-width: 440px; margin: 0 auto; line-height: 1.6;">Built for one job — finding your files — and doing it better than anything else.</p>
     </div>
-    <div class="features-grid">
+
+    <div class="features-grid-wrap" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #18181B; border-radius: 16px; overflow: hidden; border: 1px solid #18181B;">
+
       <div class="feature-card">
-        <div class="feature-icon">
-          <svg viewBox="0 0 22 22" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-            <circle cx="10" cy="10" r="7"/><path d="M15.5 15.5L19 19"/><path d="M7 10h6M10 7v6"/>
-          </svg>
+        <div style="width: 44px; height: 44px; background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.12); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+          <svg viewBox="0 0 22 22" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="10" cy="10" r="7"/><path d="M15.5 15.5L19 19"/><path d="M7 10h6M10 7v6"/></svg>
         </div>
-        <h3>Instant search</h3>
-        <p>Results appear in under 50ms. Full-text across filenames, content, metadata, and tags — all at once.</p>
+        <h3 style="font-size: 17px; font-weight: 600; margin-bottom: 10px; letter-spacing: -0.01em;">Instant search</h3>
+        <p style="font-size: 14px; color: #71717A; line-height: 1.7;">Results appear in under 50ms. Full-text across filenames, content, metadata, and tags — all at once.</p>
       </div>
+
       <div class="feature-card">
-        <div class="feature-icon">
-          <svg viewBox="0 0 22 22" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-            <path d="M11 2L2 7v5c0 5.25 4 9.74 9 10.93 5-1.19 9-5.68 9-10.93V7L11 2Z"/>
-          </svg>
+        <div style="width: 44px; height: 44px; background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.12); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+          <svg viewBox="0 0 22 22" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M11 2L2 7v5c0 5.25 4 9.74 9 10.93 5-1.19 9-5.68 9-10.93V7L11 2Z"/></svg>
         </div>
-        <h3>100% private</h3>
-        <p>Your files never leave your machine. No cloud, no analytics, no telemetry. We literally can't see your data.</p>
+        <h3 style="font-size: 17px; font-weight: 600; margin-bottom: 10px; letter-spacing: -0.01em;">100% private</h3>
+        <p style="font-size: 14px; color: #71717A; line-height: 1.7;">Your files never leave your machine. No cloud, no analytics, no telemetry. We literally can't see your data.</p>
       </div>
+
       <div class="feature-card">
-        <div class="feature-icon">
-          <svg viewBox="0 0 22 22" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-            <path d="M13 2H6a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8Z"/>
-            <polyline points="13 2 13 8 19 8"/><path d="M8 13h6M8 17h4"/>
-          </svg>
+        <div style="width: 44px; height: 44px; background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.12); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+          <svg viewBox="0 0 22 22" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M13 2H6a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8Z"/><polyline points="13 2 13 8 19 8"/><path d="M8 13h6M8 17h4"/></svg>
         </div>
-        <h3>Content-aware</h3>
-        <p>Understands what's inside your files — not just their names. Searches PDFs, code, docs, spreadsheets, and more.</p>
+        <h3 style="font-size: 17px; font-weight: 600; margin-bottom: 10px; letter-spacing: -0.01em;">Content-aware</h3>
+        <p style="font-size: 14px; color: #71717A; line-height: 1.7;">Understands what's inside your files — not just their names. Searches PDFs, code, docs, spreadsheets, and more.</p>
       </div>
+
       <div class="feature-card">
-        <div class="feature-icon">
-          <svg viewBox="0 0 22 22" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-            <rect x="2" y="3" width="18" height="14" rx="2"/>
-            <path d="M8 21h6M11 17v4"/>
-          </svg>
+        <div style="width: 44px; height: 44px; background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.12); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+          <svg viewBox="0 0 22 22" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="2" y="3" width="18" height="14" rx="2"/><path d="M8 21h6M11 17v4"/></svg>
         </div>
-        <h3>Native macOS</h3>
-        <p>Built from the ground up for Mac. Integrates with Spotlight, respects system permissions, and feels native.</p>
+        <h3 style="font-size: 17px; font-weight: 600; margin-bottom: 10px; letter-spacing: -0.01em;">Native macOS</h3>
+        <p style="font-size: 14px; color: #71717A; line-height: 1.7;">Built from the ground up for Mac. Integrates with Spotlight, respects system permissions, and feels native.</p>
       </div>
+
       <div class="feature-card">
-        <div class="feature-icon">
-          <svg viewBox="0 0 22 22" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-            <rect x="3" y="7" width="16" height="12" rx="2"/>
-            <path d="M7 7V5a2 2 0 014 0v2"/>
-            <circle cx="11" cy="13" r="1" fill="#3B82F6" stroke="none"/>
-            <path d="M11 14v2"/>
-          </svg>
+        <div style="width: 44px; height: 44px; background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.12); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+          <svg viewBox="0 0 22 22" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="3" y="7" width="16" height="12" rx="2"/><path d="M7 7V5a2 2 0 014 0v2M10 13v2"/><circle cx="10" cy="12" r="1" fill="#3B82F6" stroke="none"/></svg>
         </div>
-        <h3>Global shortcut</h3>
-        <p>Press ⌘K from anywhere on your Mac to summon Attic instantly. Customizable to any shortcut you prefer.</p>
+        <h3 style="font-size: 17px; font-weight: 600; margin-bottom: 10px; letter-spacing: -0.01em;">Global shortcut</h3>
+        <p style="font-size: 14px; color: #71717A; line-height: 1.7;">Press ⌘K from anywhere on your Mac to summon Attic instantly. Customizable to any shortcut you prefer.</p>
       </div>
+
       <div class="feature-card">
-        <div class="feature-icon">
-          <svg viewBox="0 0 22 22" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-            <circle cx="11" cy="11" r="9"/><path d="M11 7v4l3 3"/>
-          </svg>
+        <div style="width: 44px; height: 44px; background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.12); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+          <svg viewBox="0 0 22 22" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="11" cy="11" r="9"/><path d="M11 7v4l3 3"/></svg>
         </div>
-        <h3>Always up to date</h3>
-        <p>The index updates in real time as you add, edit, or remove files. No manual re-indexing, ever.</p>
+        <h3 style="font-size: 17px; font-weight: 600; margin-bottom: 10px; letter-spacing: -0.01em;">Always up to date</h3>
+        <p style="font-size: 14px; color: #71717A; line-height: 1.7;">The index updates in real time as you add, edit, or remove files. No manual re-indexing, ever.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── HOW IT WORKS ── -->
-<section id="how-it-works" class="how-section">
-  <div class="section-inner">
-    <div class="section-header">
-      <div class="section-eyebrow">Getting started</div>
-      <h2 class="section-title">Simple by design.</h2>
-      <p class="section-sub" style="max-width:none;">Up and running in under 60 seconds.</p>
+<!-- WHY I BUILT THIS -->
+<section id="story" class="section-pad" style="padding: 0 24px 120px;">
+  <div style="max-width: 1100px; margin: 0 auto;">
+    <div class="story-grid" style="display: grid; grid-template-columns: 220px 1fr; gap: 80px; align-items: start;">
+      <div class="story-sticky" style="padding-top: 8px; position: sticky; top: 88px;">
+        <div style="font-size: 11px; font-weight: 600; color: #52525B; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 14px;">Why I built this</div>
+        <div style="width: 24px; height: 2px; background: #3B82F6;"></div>
+        <div style="margin-top: 48px; padding-top: 40px; border-top: 1px solid #18181B;">
+          <div style="width: 40px; height: 40px; background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <div style="font-size: 14px; font-weight: 600; color: #FAFAFA;">The developer</div>
+          <div style="font-size: 12px; color: #52525B; margin-top: 4px; font-family: 'JetBrains Mono', monospace;">@chunk_jp</div>
+        </div>
+      </div>
+      <div>
+        <p style="font-size: 20px; color: #FAFAFA; line-height: 1.8; margin-bottom: 32px; letter-spacing: -0.015em; font-weight: 400;">
+          A few years ago I got tired of tools that wanted access to everything just to show me a search bar. Google Drive, Notion, Dropbox — they all promised to help me find my files, but the price was always the same: hand over your data, trust a third-party server, sign into one more account. I didn't want that trade.
+        </p>
+        <p style="font-size: 20px; color: #71717A; line-height: 1.8; margin-bottom: 32px; letter-spacing: -0.015em; font-weight: 400;">
+          The moment I decided to build Attic was after a frustrating afternoon trying to track down a contract PDF. I knew it was on my Mac. Spotlight couldn't find it. The cloud search tool I'd been using had indexed the folder wrong. I spent twenty minutes looking for something I had made myself, on hardware I owned. That felt deeply wrong.
+        </p>
+        <p style="font-size: 20px; color: #71717A; line-height: 1.8; letter-spacing: -0.015em; font-weight: 400;">
+          Attic started as a weekend script and grew into something I use every single day. The difference is simple: the index lives entirely on your machine, nothing phones home, and searches happen locally at speeds no cloud tool can match. It's your Mac doing what it was always capable of — you just needed the right key.
+        </p>
+      </div>
     </div>
-    <div class="how-steps">
-      <div class="how-connector"></div>
-      <div class="how-step">
-        <div class="how-num-active">1</div>
-        <h3>Install Attic</h3>
-        <p>Download the app (under 5 MB). Drag to Applications. Launch. Done.</p>
+  </div>
+</section>
+
+<!-- GUIDE: HOW TO USE ATTIC -->
+<section id="guide" class="section-pad" style="padding: 80px 24px 120px; background: #0C0C0E; border-top: 1px solid #18181B; border-bottom: 1px solid #18181B;">
+  <div style="max-width: 1100px; margin: 0 auto;">
+    <div style="text-align: center; margin-bottom: 64px;">
+      <div style="display: inline-block; font-size: 11px; font-weight: 600; color: #52525B; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px;">Quick start</div>
+      <h2 style="font-size: clamp(32px, 5vw, 48px); font-weight: 700; letter-spacing: -0.03em;">Four steps. No account. No surprises.</h2>
+    </div>
+    <div class="guide-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; background: #18181B; border-radius: 16px; overflow: hidden; border: 1px solid #18181B;">
+
+      <div class="guide-card">
+        <div style="display: flex; align-items: flex-start; gap: 20px;">
+          <div style="font-size: 11px; font-weight: 700; color: #3B82F6; font-family: 'JetBrains Mono', monospace; background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.18); border-radius: 6px; padding: 5px 10px; flex-shrink: 0; letter-spacing: 0.05em; margin-top: 1px;">01</div>
+          <div>
+            <h3 style="font-size: 17px; font-weight: 600; margin-bottom: 10px; letter-spacing: -0.01em;">Download and open Attic</h3>
+            <p style="font-size: 14px; color: #71717A; line-height: 1.75;">Grab the free Mac app — it's under 5 MB. Drag to Applications, launch like any app. No installer, no setup wizard, no account required.</p>
+          </div>
+        </div>
       </div>
-      <div class="how-step">
-        <div class="how-num">2</div>
-        <h3>Choose folders</h3>
-        <p>Tell Attic which directories to index. Home folder, external drives, anywhere.</p>
+
+      <div class="guide-card">
+        <div style="display: flex; align-items: flex-start; gap: 20px;">
+          <div style="font-size: 11px; font-weight: 700; color: #3B82F6; font-family: 'JetBrains Mono', monospace; background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.18); border-radius: 6px; padding: 5px 10px; flex-shrink: 0; letter-spacing: 0.05em; margin-top: 1px;">02</div>
+          <div>
+            <h3 style="font-size: 17px; font-weight: 600; margin-bottom: 10px; letter-spacing: -0.01em;">Let it index your files — once</h3>
+            <p style="font-size: 14px; color: #71717A; line-height: 1.75;">Attic scans your chosen folders and builds a local index. This happens one time, stays entirely on your Mac, and never uploads a single byte to any server.</p>
+          </div>
+        </div>
       </div>
-      <div class="how-step">
-        <div class="how-num">3</div>
-        <h3>Search instantly</h3>
-        <p>Press ⌘K from anywhere and find any file in milliseconds. Your speed, your machine.</p>
+
+      <div class="guide-card">
+        <div style="display: flex; align-items: flex-start; gap: 20px;">
+          <div style="font-size: 11px; font-weight: 700; color: #3B82F6; font-family: 'JetBrains Mono', monospace; background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.18); border-radius: 6px; padding: 5px 10px; flex-shrink: 0; letter-spacing: 0.05em; margin-top: 1px;">03</div>
+          <div>
+            <h3 style="font-size: 17px; font-weight: 600; margin-bottom: 10px; letter-spacing: -0.01em;">Search with natural language</h3>
+            <p style="font-size: 14px; color: #71717A; line-height: 1.75;">Press ⌘K from anywhere. Type what you remember — a word from inside a doc, a project name, a file type. Results appear in under 50ms.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-card">
+        <div style="display: flex; align-items: flex-start; gap: 20px;">
+          <div style="font-size: 11px; font-weight: 700; color: #3B82F6; font-family: 'JetBrains Mono', monospace; background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.18); border-radius: 6px; padding: 5px 10px; flex-shrink: 0; letter-spacing: 0.05em; margin-top: 1px;">04</div>
+          <div>
+            <h3 style="font-size: 17px; font-weight: 600; margin-bottom: 10px; letter-spacing: -0.01em;">Your files stay on your Mac. Always.</h3>
+            <p style="font-size: 14px; color: #71717A; line-height: 1.75;">No cloud calls. No background sync. No analytics. Every file you open is served directly from local storage — no middleman, no exceptions.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works" class="section-pad" style="padding: 120px 24px;">
+  <div style="max-width: 1100px; margin: 0 auto;">
+    <div style="text-align: center; margin-bottom: 72px;">
+      <div style="display: inline-block; font-size: 11px; font-weight: 600; color: #52525B; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px;">Getting started</div>
+      <h2 style="font-size: clamp(32px, 5vw, 48px); font-weight: 700; letter-spacing: -0.03em; margin-bottom: 16px;">Simple by design.</h2>
+      <p style="font-size: 18px; color: #71717A;">Up and running in under 60 seconds.</p>
+    </div>
+
+    <div class="howitworks-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; position: relative;">
+      <div class="howitworks-connector" style="position: absolute; top: 22px; left: calc(33.33% + 22px); right: calc(33.33% + 22px); height: 1px; background: linear-gradient(90deg, transparent, #3B82F6 30%, #3B82F6 70%, transparent); pointer-events: none;"></div>
+
+      <div style="padding: 0 40px; text-align: center;">
+        <div style="width: 44px; height: 44px; border-radius: 50%; background: #3B82F6; display: flex; align-items: center; justify-content: center; margin: 0 auto 28px; font-size: 15px; font-weight: 700; color: #fff; position: relative; z-index: 1; box-shadow: 0 0 0 8px rgba(59,130,246,0.1);">1</div>
+        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 12px; letter-spacing: -0.01em;">Install Attic</h3>
+        <p style="font-size: 14px; color: #71717A; line-height: 1.7;">Download the app (under 5 MB). Drag to Applications. Launch. Done.</p>
+      </div>
+
+      <div style="padding: 0 40px; text-align: center;">
+        <div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); display: flex; align-items: center; justify-content: center; margin: 0 auto 28px; font-size: 15px; font-weight: 700; color: #60A5FA; position: relative; z-index: 1;">2</div>
+        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 12px; letter-spacing: -0.01em;">Choose folders</h3>
+        <p style="font-size: 14px; color: #71717A; line-height: 1.7;">Tell Attic which directories to index. Home folder, external drives, anywhere.</p>
+      </div>
+
+      <div style="padding: 0 40px; text-align: center;">
+        <div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); display: flex; align-items: center; justify-content: center; margin: 0 auto 28px; font-size: 15px; font-weight: 700; color: #60A5FA; position: relative; z-index: 1;">3</div>
+        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 12px; letter-spacing: -0.01em;">Search instantly</h3>
+        <p style="font-size: 14px; color: #71717A; line-height: 1.7;">Press ⌘K from anywhere and find any file in milliseconds. Your speed, your machine.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── CTA ── -->
-<section id="download" class="cta-section">
-  <div class="cta-card">
-    <div class="cta-bg-glow"></div>
-    <div class="cta-line"></div>
-    <div class="cta-inner">
-      <div class="section-eyebrow">Get started</div>
-      <h2 class="cta-title">Ready to find anything?</h2>
-      <p class="cta-sub">Stop losing time to file hunting. Start with Attic — it's free, forever.</p>
-      <div class="cta-buttons">
-        <a class="btn-primary-lg" href="https://github.com/CHUNK-jp/attic" target="_blank" rel="noopener">
-          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="17" height="17">
-            <path d="M10 3v10M6 9l4 4 4-4"/><path d="M3 15h14"/>
-          </svg>
-          Download for Mac
-        </a>
-        <a class="btn-ghost-lg" href="https://github.com/CHUNK-jp/attic" target="_blank" rel="noopener">View source on GitHub</a>
+<!-- CTA -->
+<section id="download" class="section-pad" style="padding: 0 24px 120px;">
+  <div style="max-width: 1100px; margin: 0 auto;">
+    <div class="cta-card" style="text-align: center; padding: 80px 48px; background: #111113; border: 1px solid #1E1E23; border-radius: 20px; position: relative; overflow: hidden;">
+      <div style="position: absolute; inset: 0; background: radial-gradient(ellipse 50% 60% at 50% 0%, rgba(59,130,246,0.07) 0%, transparent 70%); pointer-events: none;"></div>
+      <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 1px; height: 80px; background: linear-gradient(to bottom, #3B82F6, transparent);"></div>
+      <div style="position: relative;">
+        <div style="display: inline-block; font-size: 11px; font-weight: 600; color: #52525B; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px;">Get started</div>
+        <h2 style="font-size: clamp(36px, 5vw, 52px); font-weight: 700; letter-spacing: -0.03em; margin-bottom: 16px;">Ready to find anything?</h2>
+        <p style="font-size: 18px; color: #71717A; margin-bottom: 44px; line-height: 1.6; max-width: 400px; margin-left: auto; margin-right: auto;">Stop losing time to file hunting. Start with Attic — it's free, forever.</p>
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px;">
+          <a href="https://github.com/CHUNK-jp/attic" class="btn-primary-lg">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M10 3v10M6 9l4 4 4-4"/><path d="M3 15h14"/></svg>
+            Download for Mac
+          </a>
+          <a href="https://github.com/CHUNK-jp/attic" class="btn-secondary-lg">View source on GitHub</a>
+        </div>
+        <p style="font-size: 13px; color: #52525B;">macOS 12 Ventura or later · No account · No credit card</p>
       </div>
-      <p class="cta-note">macOS 12 Ventura or later · No account · No credit card</p>
     </div>
   </div>
 </section>
 
-<!-- ── FOOTER ── -->
-<footer>
-  <div class="footer-inner">
-    <div class="footer-logo">
-      <div class="footer-logo-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
-          <path d="M3 11.5L12 3l9 8.5V21H3V11.5Z"/>
-          <circle cx="12" cy="15.5" r="3.5"/>
-          <path d="M14.5 18l2.5 2.5"/>
-        </svg>
+<!-- FOOTER -->
+<footer style="border-top: 1px solid #18181B; padding: 40px 24px;">
+  <div style="max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 28px; height: 28px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.18); border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 11.5L12 3l9 8.5V21H3V11.5Z"/><circle cx="12" cy="15.5" r="3.5"/><path d="M14.5 18l2.5 2.5"/></svg>
       </div>
-      <span class="footer-logo-text">Attic</span>
-      <span class="footer-suite">Part of the Common Tools suite</span>
+      <span style="font-size: 14px; font-weight: 600;">Attic</span>
+      <span style="font-size: 13px; color: #3F3F46;">Part of the Common Tools suite</span>
     </div>
-    <div class="footer-links">
-      <a href="#features">Features</a>
-      <a href="https://github.com/CHUNK-jp/attic" target="_blank" rel="noopener">GitHub</a>
-      <a href="#">Privacy</a>
-      <a href="#">Docs</a>
+    <div style="display: flex; align-items: center; gap: 4px;">
+      <a href="#features" class="footer-link">Features</a>
+      <a href="https://github.com/CHUNK-jp/attic" class="footer-link">GitHub</a>
+      <a href="#" class="footer-link">Privacy</a>
+      <a href="#" class="footer-link">Docs</a>
     </div>
-    <div class="footer-copy">© 2025 Attic · Built with privacy in mind.</div>
+    <div style="font-size: 13px; color: #3F3F46;">© 2025 Attic · Built with privacy in mind.</div>
   </div>
 </footer>
 
 <script>
-(function () {
   const FILES = [
-    { name: 'Q4_Report_2024.pdf',   path: '~/Documents/Reports/',   type: 'PDF',  meta: '2.4 MB · Dec 12', color: '#EF4444', bg: 'rgba(239,68,68,0.12)'   },
-    { name: 'design-system.sketch', path: '~/Design/Projects/',      type: 'SKT',  meta: '14 MB · Nov 30',  color: '#F97316', bg: 'rgba(249,115,22,0.12)'  },
-    { name: 'Budget_2025.xlsx',     path: '~/Documents/Finance/',    type: 'XLS',  meta: '156 KB · Jan 5',  color: '#22C55E', bg: 'rgba(34,197,94,0.12)'   },
-    { name: 'meeting-notes.md',     path: '~/Dropbox/Notes/',        type: 'MD',   meta: '12 KB · Jan 8',   color: '#A1A1AA', bg: 'rgba(113,113,122,0.12)' },
-    { name: 'App.tsx',              path: '~/Projects/webapp/src/',  type: 'TSX',  meta: '8 KB · Jan 10',   color: '#06B6D4', bg: 'rgba(6,182,212,0.12)'   },
-    { name: 'profile-photo.png',    path: '~/Pictures/2024/',        type: 'PNG',  meta: '3.2 MB · Dec 20', color: '#8B5CF6', bg: 'rgba(139,92,246,0.12)'  },
-    { name: 'presentation.pptx',   path: '~/Documents/Slides/',     type: 'PPT',  meta: '4.7 MB · Jan 3',  color: '#F59E0B', bg: 'rgba(245,158,11,0.12)'  },
-    { name: 'invoice_template.docx',path: '~/Documents/',            type: 'DOC',  meta: '34 KB · Nov 15',  color: '#3B82F6', bg: 'rgba(59,130,246,0.12)'  },
-    { name: 'README.md',            path: '~/Projects/attic/',       type: 'MD',   meta: '8 KB · Jan 12',   color: '#A1A1AA', bg: 'rgba(113,113,122,0.12)' },
-    { name: 'config.yaml',          path: '~/Server/configs/',       type: 'YML',  meta: '4 KB · Jan 9',    color: '#EC4899', bg: 'rgba(236,72,153,0.12)'  },
-    { name: 'package.json',         path: '~/Projects/webapp/',      type: 'JSON', meta: '2 KB · Jan 11',   color: '#F59E0B', bg: 'rgba(245,158,11,0.12)'  },
+    { name: 'Q4_Report_2024.pdf',    path: '~/Documents/Reports/',      type: 'PDF',  meta: '2.4 MB · Dec 12', badgeColor: '#EF4444', badgeBg: 'rgba(239,68,68,0.12)'   },
+    { name: 'design-system.sketch',  path: '~/Design/Projects/',        type: 'SKT',  meta: '14 MB · Nov 30',  badgeColor: '#F97316', badgeBg: 'rgba(249,115,22,0.12)'  },
+    { name: 'Budget_2025.xlsx',       path: '~/Documents/Finance/',      type: 'XLS',  meta: '156 KB · Jan 5',  badgeColor: '#22C55E', badgeBg: 'rgba(34,197,94,0.12)'   },
+    { name: 'meeting-notes.md',       path: '~/Dropbox/Notes/',          type: 'MD',   meta: '12 KB · Jan 8',   badgeColor: '#A1A1AA', badgeBg: 'rgba(113,113,122,0.12)' },
+    { name: 'App.tsx',                path: '~/Projects/webapp/src/',    type: 'TSX',  meta: '8 KB · Jan 10',   badgeColor: '#06B6D4', badgeBg: 'rgba(6,182,212,0.12)'   },
+    { name: 'profile-photo.png',      path: '~/Pictures/2024/',          type: 'PNG',  meta: '3.2 MB · Dec 20', badgeColor: '#8B5CF6', badgeBg: 'rgba(139,92,246,0.12)'  },
+    { name: 'presentation.pptx',      path: '~/Documents/Slides/',       type: 'PPT',  meta: '4.7 MB · Jan 3',  badgeColor: '#F59E0B', badgeBg: 'rgba(245,158,11,0.12)'  },
+    { name: 'invoice_template.docx',  path: '~/Documents/',              type: 'DOC',  meta: '34 KB · Nov 15',  badgeColor: '#3B82F6', badgeBg: 'rgba(59,130,246,0.12)'  },
+    { name: 'README.md',              path: '~/Projects/attic/',         type: 'MD',   meta: '8 KB · Jan 12',   badgeColor: '#A1A1AA', badgeBg: 'rgba(113,113,122,0.12)' },
+    { name: 'config.yaml',            path: '~/Server/configs/',         type: 'YML',  meta: '4 KB · Jan 9',    badgeColor: '#EC4899', badgeBg: 'rgba(236,72,153,0.12)'  },
+    { name: 'package.json',           path: '~/Projects/webapp/',        type: 'JSON', meta: '2 KB · Jan 11',   badgeColor: '#F59E0B', badgeBg: 'rgba(245,158,11,0.12)'  },
   ];
 
-  const input    = document.getElementById('searchInput');
-  const box      = document.getElementById('searchBox');
-  const dropdown = document.getElementById('searchDropdown');
-  const list     = document.getElementById('resultList');
-  const countEl  = document.getElementById('resultCount');
-  let blurTimer  = null;
+  const input = document.getElementById('search-input');
+  const box = document.getElementById('search-box');
+  const dropdown = document.getElementById('search-dropdown');
+  const resultList = document.getElementById('result-list');
+  const resultCount = document.getElementById('result-count');
 
   function search(q) {
     if (!q) return [];
-    const lq = q.toLowerCase();
+    const lower = q.toLowerCase();
     return FILES.filter(f =>
-      f.name.toLowerCase().includes(lq) ||
-      f.path.toLowerCase().includes(lq) ||
-      f.type.toLowerCase().includes(lq)
+      f.name.toLowerCase().includes(lower) ||
+      f.path.toLowerCase().includes(lower) ||
+      f.type.toLowerCase().includes(lower)
     ).slice(0, 5);
   }
 
-  function render() {
-    const q = input.value.trim();
-    const results = search(q);
-    const show = document.activeElement === input && results.length > 0;
-
-    box.classList.toggle('focused', document.activeElement === input);
-    dropdown.style.display = show ? 'block' : 'none';
-
-    if (!show) return;
-    countEl.textContent = results.length + ' result' + (results.length !== 1 ? 's' : '');
-    list.innerHTML = results.map(f => `
-      <div class="result-row">
-        <div class="result-badge" style="background:${f.bg};color:${f.color};">${f.type}</div>
+  function renderResults(results) {
+    resultCount.textContent = results.length + ' result' + (results.length !== 1 ? 's' : '');
+    resultList.innerHTML = '';
+    results.forEach(f => {
+      const row = document.createElement('div');
+      row.className = 'search-row';
+      row.innerHTML = `
+        <div style="width:34px;height:34px;border-radius:6px;background:${f.badgeBg};color:${f.badgeColor};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;font-family:'JetBrains Mono',monospace;flex-shrink:0;letter-spacing:0.02em;">${f.type}</div>
         <div style="flex:1;min-width:0;">
-          <div class="result-name">${f.name}</div>
-          <div class="result-path">${f.path}</div>
+          <div style="font-size:14px;font-weight:500;color:#FAFAFA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f.name}</div>
+          <div style="font-size:12px;color:#52525B;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'JetBrains Mono',monospace;">${f.path}</div>
         </div>
-        <div class="result-meta">${f.meta}</div>
-      </div>`).join('');
+        <div style="font-size:11px;color:#3F3F46;white-space:nowrap;padding-left:12px;">${f.meta}</div>
+      `;
+      resultList.appendChild(row);
+    });
   }
 
-  input.addEventListener('input', render);
-  input.addEventListener('focus', () => { clearTimeout(blurTimer); box.classList.add('focused'); render(); });
-  input.addEventListener('blur', () => { blurTimer = setTimeout(() => { box.classList.remove('focused'); dropdown.style.display = 'none'; }, 220); });
+  function showDropdown(results) {
+    if (results.length > 0) {
+      renderResults(results);
+      dropdown.style.display = 'block';
+    } else {
+      dropdown.style.display = 'none';
+    }
+  }
 
-  document.addEventListener('keydown', e => {
+  input.addEventListener('input', () => {
+    showDropdown(search(input.value.trim()));
+  });
+
+  input.addEventListener('focus', () => {
+    box.style.borderColor = '#3B82F6';
+    box.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.1)';
+    showDropdown(search(input.value.trim()));
+  });
+
+  input.addEventListener('blur', () => {
+    setTimeout(() => {
+      box.style.borderColor = '#27272A';
+      box.style.boxShadow = 'none';
+      dropdown.style.display = 'none';
+    }, 220);
+  });
+
+  document.addEventListener('keydown', (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
       e.preventDefault();
       input.focus();
-      input.select();
+      input.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
     if (e.key === 'Escape') {
       input.value = '';
@@ -666,7 +506,6 @@ footer {
       dropdown.style.display = 'none';
     }
   });
-})();
 </script>
 </body>
 </html>
